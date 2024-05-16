@@ -37,7 +37,7 @@ bool recv_msg(int sd, int code, char *text) {
 
     // optional copy of parameters
     if(text) strcpy(text, message);
-    
+
     // boolean test for the code
     return (code == recv_code) ? true : false;
 }
@@ -111,7 +111,7 @@ void authenticate(int sd) {
 
     // wait for answer and process it and check for errors
     if (!recv_msg(sd, 230, desc)) {
-        printf("Auth failed. User could not log in.\n")
+        printf("Auth failed. User could not log in.\n");
     }
 }
 
