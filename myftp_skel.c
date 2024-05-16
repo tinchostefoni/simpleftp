@@ -116,8 +116,13 @@ void get(int sd, char *file_name) {
     FILE *file;
 
     // send the RETR command to the server
+    send_msg(sd, "RETR", file_name);
 
     // check for the response
+    if (!recv_msg(sd, 550, desc)) {
+        printf("Couldn't find file or directory");
+        return;
+    }
 
     // parsing the file size from the answer received
     // "File %s size %ld bytes"
@@ -127,14 +132,18 @@ void get(int sd, char *file_name) {
     file = fopen(file_name, "w");
 
     //receive the file
-
-
+    while ((recv_s = recv(sd, buffer, r_size, 0)) > 0) {
+        fwrite(buffer, sizeof(char), recv_s, file);
+    }    
 
     // close the file
     fclose(file);
 
     // receive the OK from the server
-
+    if (!recv_msg(sd, 226, desc)) {
+        printf("Transfer did not finish");
+        return;
+    }
 }
 
 /**
@@ -148,8 +157,9 @@ void quit(int sd) {
     send_msg(sd, "QUIT", NULL);
 
     // receive the answer from the server
-    if(!recv_msg(sd, 221, desc)) {
+    if (!recv_msg(sd, 221, desc)) {
         printf("Failed to receive infromation from server");
+        return;
     }
 }
 
