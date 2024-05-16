@@ -209,16 +209,44 @@ int main (int argc, char *argv[]) {
     struct sockaddr_in addr;
 
     // arguments checking
+    if (argc != 3) {
+        printf("%s", argv[0]);
+        return 1;
+    }
 
     // create socket and check for errors
+    sd = socket(PF_INET, SOCK_STREAM, 0);
+    if (sd < 0) {
+        printf("Socket creation failed.\n");
+    }
     
-    // set socket data    
+    // set socket data
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = PF_INET;
+    addr.sin_port = atoi(argv[2]);
+    inet_pton(PF_INET, argv[1], &(addr.sin_addr));
+    bind(sd, (struct sockaddr *)&addr, sizeof(addr));
 
     // connect and check for errors
+    if (connect(sd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        perror("Connection error.\n");
+        close(sd);
+        return 1;
+    }
 
     // if receive hello proceed with authenticate and operate if not warning
+    char desc[100];
+    if (!recv_msg(sd, 220, desc)) {
+        printf("Did not receive initial message from server.\n");
+        close(sd);
+        return 1;
+    }
+
+    authenticate(sd);
+    operate(sd);
 
     // close socket
+    close(sd);
 
     return 0;
 }
