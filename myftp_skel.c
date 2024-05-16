@@ -84,25 +84,31 @@ void authenticate(int sd) {
     input = read_input();
 
     // send the command to the server
-    
+    send_msg(sd, "USER", input);
+
     // relese memory
     free(input);
 
     // wait to receive password requirement and check for errors
-
+    if (!recv_msg(sd, 331, desc)) {
+        printf("Failed to receive password from server.\n");
+        return;
+    }
 
     // ask for password
     printf("passwd: ");
     input = read_input();
 
     // send the command to the server
-
+    send_msg(sd, "PASS", input);
 
     // release memory
     free(input);
 
     // wait for answer and process it and check for errors
-
+    if (!recv_msg(sd, 230, desc)) {
+        printf("Auth failed. User could not log in.\n")
+    }
 }
 
 /**
@@ -120,7 +126,7 @@ void get(int sd, char *file_name) {
 
     // check for the response
     if (!recv_msg(sd, 550, desc)) {
-        printf("Couldn't find file or directory");
+        printf("Couldn't find file or directory.\n");
         return;
     }
 
@@ -141,7 +147,7 @@ void get(int sd, char *file_name) {
 
     // receive the OK from the server
     if (!recv_msg(sd, 226, desc)) {
-        printf("Transfer did not finish");
+        printf("Transfer did not finish.\n");
         return;
     }
 }
@@ -158,7 +164,7 @@ void quit(int sd) {
 
     // receive the answer from the server
     if (!recv_msg(sd, 221, desc)) {
-        printf("Failed to receive infromation from server");
+        printf("Failed to receive infromation from server.\n");
         return;
     }
 }
