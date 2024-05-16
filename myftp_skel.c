@@ -25,17 +25,19 @@ bool recv_msg(int sd, int code, char *text) {
     int recv_s, recv_code;
 
     // receive the answer
-
+    recv_s = recv(sd, buffer, BUFSIZE, 0);
 
     // error checking
-    if (recv_s < 0) warn("error receiving data");
-    if (recv_s == 0) errx(1, "connection closed by host");
+    if (recv_s < 0) warn("Error receiving data.\m");
+    if (recv_s == 0) errx(1, "Connection closed by host.\n");
 
     // parsing the code and message receive from the answer
     sscanf(buffer, "%d %[^\r\n]\r\n", &recv_code, message);
     printf("%d %s\n", recv_code, message);
+
     // optional copy of parameters
     if(text) strcpy(text, message);
+    
     // boolean test for the code
     return (code == recv_code) ? true : false;
 }
@@ -56,7 +58,9 @@ void send_msg(int sd, char *operation, char *param) {
         sprintf(buffer, "%s\r\n", operation);
 
     // send command and check for errors
-
+    if (send(sd, buffer, strlen(buffer), 0) < 0) {
+        perror("Error sending data.\n");
+    }
 }
 
 /**
