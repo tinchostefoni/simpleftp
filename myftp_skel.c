@@ -142,10 +142,15 @@ void get(int sd, char *file_name) {
  * sd: socket descriptor
  **/
 void quit(int sd) {
+    char desc[100];
+
     // send command QUIT to the client
+    send_msg(sd, "QUIT", NULL);
 
     // receive the answer from the server
-
+    if(!recv_msg(sd, 221, desc)) {
+        printf("Failed to receive infromation from server");
+    }
 }
 
 /**
