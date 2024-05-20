@@ -14,13 +14,13 @@
 #define PARSIZE 100
 
 #define MSG_220 "220 srvFtp version 1.0\r\n"
-#define MSG_331 "331 Password required for %s\r\n"
-#define MSG_230 "230 User %s logged in\r\n"
-#define MSG_530 "530 Login incorrect\r\n"
 #define MSG_221 "221 Goodbye\r\n"
-#define MSG_550 "550 %s: no such file or directory\r\n"
-#define MSG_299 "299 File %s size %ld bytes\r\n"
 #define MSG_226 "226 Transfer complete\r\n"
+#define MSG_230 "230 User %s logged in\r\n"
+#define MSG_299 "299 File %s size %ld bytes\r\n"
+#define MSG_331 "331 Password required for %s\r\n"
+#define MSG_530 "530 Login incorrect\r\n"
+#define MSG_550 "550 %s: no such file or directory\r\n"
 
 /**
  * function: receive the commands from the client
@@ -207,31 +207,62 @@ int main (int argc, char *argv[]) {
 
     // arguments checking
     if (argc < 2) {
-        errx(1, "Port expected as argument");
+        errx(1, "Port expected as argument.\n");
     } else if (argc > 2) {
-        errx(1, "Too many arguments");
+        errx(1, "Too many arguments.\n");
     }
 
     // reserve sockets and variables space
     int master_sd, slave_sd;
     struct sockaddr_in master_addr, slave_addr;
+    socklen_t addrlen = sizeof(slave_addr);
+    int port = atoi(argv[1]);
 
     // create server socket and check errors
+    master_sd = socket(PF_INET, SOCK_STREAM, 0);
+    if (master_sd < 0) {
+        perror("Socket creation failed.\n");
+        return 1;
+    }
     
     // bind master socket and check errors
+    memset(&master_addr, 0, sizeof(master_addr));
+    master_addr.sin_family = PF_INET;
+    master_addr.sin_addr.s_addr = INADDR_ANY;
+    master_addr.sin_port = htons(port);
+
+    if (bind(master_sd, (struct sockaddr *)&master_addr, sizeof(master_addr)) < 0) {
+        perror("Bind failed.\n");
+        return 1;
+    }
 
     // make it listen
+    if (listen(master_sd, 5) < 0) {
+        perror("Listen failed.\n");
+        return 1;
+    }
+
+    printf("Server listening on port %d.\n", port);
 
     // main loop
     while (true) {
         // accept connectiones sequentially and check errors
+        slave_sd = accept(master_sd, (struct sockaddr *)&slave_addr, &addrlen);
+        if (slave_sd < 0) {
+            perror("Accept failed.\n");
+            continue;
+        }
 
         // send hello
+        send_ans(slave_sd, MSG_220);
 
         // operate only if authenticate is true
+        if (authenticate(slave_sd))
+            operate(slave_sd);
     }
 
     // close server socket
+    close(master_sd);
 
     return 0;
 }
