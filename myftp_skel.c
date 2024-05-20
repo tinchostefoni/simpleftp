@@ -28,7 +28,7 @@ bool recv_msg(int sd, int code, char *text) {
     recv_s = recv(sd, buffer, BUFSIZE, 0);
 
     // error checking
-    if (recv_s < 0) warn("Error receiving data.\m");
+    if (recv_s < 0) warn("Error receiving data.\n");
     if (recv_s == 0) errx(1, "Connection closed by host.\n");
 
     // parsing the code and message receive from the answer
