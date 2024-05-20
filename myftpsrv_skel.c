@@ -39,8 +39,16 @@ bool recv_cmd(int sd, char *operation, char *param) {
     int recv_s;
 
     // receive the command in the buffer and check for errors
+    recv_s = recv(sd, buffer, BUFSIZE, 0);
+    if (recv_s < 0) {
+        perror("Error recieving data.\n");
+        return false;
+    }
 
-
+    if (recv_s == 0) {
+        perror("Connection closed by client.\n");
+        return false;
+    }
 
     // expunge the terminator characters from the buffer
     buffer[strcspn(buffer, "\r\n")] = 0;
@@ -50,12 +58,12 @@ bool recv_cmd(int sd, char *operation, char *param) {
     // extract parameters of the operation in param if it needed
     token = strtok(buffer, " ");
     if (token == NULL || strlen(token) < 4) {
-        warn("not valid ftp command");
+        warn("Not valid ftp command.\n");
         return false;
     } else {
         if (operation[0] == '\0') strcpy(operation, token);
         if (strcmp(operation, token)) {
-            warn("abnormal client flow: did not send %s command", operation);
+            warn("Abnormal client flow: did not send %s command.\n", operation);
             return false;
         }
         token = strtok(NULL, " ");
