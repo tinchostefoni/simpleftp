@@ -88,11 +88,14 @@ bool send_ans(int sd, char *message, ...){
 
     vsprintf(buffer, message, args);
     va_end(args);
+    
     // send answer preformated and check errors
+    if (send(sd, buffer, strlen(buffer), 0) < 0) {
+        perror("Error sending data.\n");
+        return false;
+    }
 
-
-
-
+    return true;
 }
 
 /**
