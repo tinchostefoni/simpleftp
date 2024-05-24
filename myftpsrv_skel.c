@@ -190,15 +190,29 @@ bool authenticate(int sd) {
     char user[PARSIZE], pass[PARSIZE];
 
     // wait to receive USER action
-
+    if (!recv_cmd(sd, "USER", user)) {
+        send_ans(sd, MSG_530);
+        return false;
+    }
 
     // ask for password
+    send_ans(sd, MSG_331, user);
 
     // wait to receive PASS action
+    if (!recv_cmd(sd, "PASS", pass)) {
+        send_ans(sd, MSG_530);
+        return false;
+    }
 
     // if credentials don't check denied login
+    if (!check_credentials(user, pass)) {
+        send_ans(sd, MSG_530);
+        return false;
+    }
 
     // confirm login
+    send_ans(sd, MSG_230, user);
+    return true;
 }
 
 /**
