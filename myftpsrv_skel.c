@@ -226,20 +226,20 @@ void operate(int sd) {
     while (true) {
         op[0] = param[0] = '\0';
         // check for commands send by the client if not inform and exit
-
+        if (!recv_cmd(sd, op, param)) {
+            send_ans(sd, "550 Unknown command.\r\n");
+            break;
+        }
 
         if (strcmp(op, "RETR") == 0) {
             retr(sd, param);
         } else if (strcmp(op, "QUIT") == 0) {
             // send goodbye and close connection
-
-
-
-
+            send_ans(sd, MSG_221);
             break;
         } else {
             // invalid command
-            // furute use
+            send_ans(sd, "550 Unknown command.\r\n");
         }
     }
 }
