@@ -84,7 +84,7 @@ void authenticate(int sd) {
     int code;
 
     // ask for user
-    printf("username: ");
+    printf("Username: ");
     input = read_input();
 
     // send the command to the server
@@ -100,7 +100,7 @@ void authenticate(int sd) {
     }
 
     // ask for password
-    printf("passwd: ");
+    printf("Password: ");
     input = read_input();
 
     // send the command to the server
@@ -112,6 +112,7 @@ void authenticate(int sd) {
     // wait for answer and process it and check for errors
     if (!recv_msg(sd, 230, desc)) {
         printf("Auth failed. User could not log in.\n");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -219,16 +220,16 @@ int main (int argc, char *argv[]) {
     }
 
     // create socket and check for errors
-    sd = socket(PF_INET, SOCK_STREAM, 0);
+    sd = socket(AF_INET, SOCK_STREAM, 0);
     if (sd < 0) {
         printf("Socket creation failed.\n");
     }
     
     // set socket data
     memset(&addr, 0, sizeof(addr));
-    addr.sin_family = PF_INET;
-    addr.sin_port = atoi(argv[2]);
-    inet_pton(PF_INET, argv[1], &(addr.sin_addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(atoi(argv[2]));
+    inet_pton(AF_INET, argv[1], &(addr.sin_addr));
     bind(sd, (struct sockaddr *)&addr, sizeof(addr));
 
     // connect and check for errors

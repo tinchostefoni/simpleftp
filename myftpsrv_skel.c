@@ -248,7 +248,7 @@ void operate(int sd) {
  * Run with
  *         ./mysrv <SERVER_PORT>
  **/
-int main (int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 
     // arguments checking
     if (argc < 2) {
@@ -264,7 +264,7 @@ int main (int argc, char *argv[]) {
     int port = atoi(argv[1]);
 
     // create server socket and check errors
-    master_sd = socket(PF_INET, SOCK_STREAM, 0);
+    master_sd = socket(AF_INET, SOCK_STREAM, 0);
     if (master_sd < 0) {
         perror("Socket creation failed.\n");
         return 1;
@@ -272,7 +272,7 @@ int main (int argc, char *argv[]) {
     
     // bind master socket and check errors
     memset(&master_addr, 0, sizeof(master_addr));
-    master_addr.sin_family = PF_INET;
+    master_addr.sin_family = AF_INET;
     master_addr.sin_addr.s_addr = INADDR_ANY;
     master_addr.sin_port = htons(port);
 
@@ -292,7 +292,7 @@ int main (int argc, char *argv[]) {
     // main loop
     while (true) {
         // accept connectiones sequentially and check errors
-        slave_sd = accept(master_sd, (struct sockaddr *)&slave_addr, &addrlen);
+        slave_sd = accept(master_sd, (struct sockaddr *)&slave_addr, (socklen_t *)&addrlen);
         if (slave_sd < 0) {
             perror("Accept failed.\n");
             continue;
